@@ -1,0 +1,57 @@
+<div class="wrap" *ngIf="data as d">
+  <header class="top">
+    <div>
+      <h1>Tablero Ejecutivo</h1>
+      <p class="sub">{{ d.company.name }} · {{ d.company.industry }} · {{ d.company.period }}</p>
+    </div>
+  </header>
+
+  <section class="grid">
+    <div class="card kpi">
+      <div class="label">Ingresos</div>
+      <div class="value">{{ fmtMoney(d.kpis.revenue.value) }}</div>
+      <div class="delta" [class.neg]="d.kpis.revenue.deltaPct<0">{{ d.kpis.revenue.deltaPct }}%</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="label">Margen Bruto</div>
+      <div class="value">{{ d.kpis.grossMarginPct.value }}%</div>
+      <div class="delta" [class.neg]="d.kpis.grossMarginPct.deltaPct<0">{{ d.kpis.grossMarginPct.deltaPct }}%</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="label">Utilidad Neta</div>
+      <div class="value">{{ fmtMoney(d.kpis.netProfit.value) }}</div>
+      <div class="delta" [class.neg]="d.kpis.netProfit.deltaPct<0">{{ d.kpis.netProfit.deltaPct }}%</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="label">Caja</div>
+      <div class="value">{{ fmtMoney(d.kpis.cashOnHand.value) }}</div>
+      <div class="delta" [class.neg]="d.kpis.cashOnHand.deltaPct<0">{{ d.kpis.cashOnHand.deltaPct }}%</div>
+    </div>
+  </section>
+
+  <section class="two">
+    <div class="card">
+      <h2>Highlights</h2>
+      <ul>
+        <li *ngFor="let h of d.highlights">{{ h }}</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Riesgos</h2>
+      <div class="pill" *ngFor="let r of d.risks">
+        <div class="pill-title">{{ r.title }}</div>
+        <div class="pill-meta">{{ r.severity }} · {{ r.owner }}</div>
+        <div class="pill-text">{{ r.mitigation }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Informe (PDF)</h2>
+    <app-pdf-generator [report]="d"></app-pdf-generator>
+  </section>
+</div>

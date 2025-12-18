@@ -1,14 +1,11 @@
 import { Component } from "@angular/core";
-import { RouterOutlet } from "@angular/router";
-import { PdfGeneratorComponent } from "./pdf-generator/pdf-generator.component";
+import { DashboardComponent } from "./dashboard/dashboard.component";
 
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [RouterOutlet, PdfGeneratorComponent],
+  imports: [DashboardComponent],
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css"],
 })
-export class AppComponent {
-  title = "angular-pdf-generator";
-}
+export class AppComponent {}

@@ -1,0 +1,40 @@
+{
+  "company": {
+    "name": "Industrias Atlántida S.A.",
+    "industry": "Manufactura",
+    "country": "Honduras",
+    "period": "2025-Q4",
+    "currency": "USD"
+  },
+  "kpis": {
+    "revenue": { "value": 1285000, "deltaPct": 6.4 },
+    "grossMarginPct": { "value": 32.1, "deltaPct": -1.2 },
+    "netProfit": { "value": 184000, "deltaPct": 3.1 },
+    "cashOnHand": { "value": 412000, "deltaPct": -4.8 },
+    "customerChurnPct": { "value": 2.9, "deltaPct": 0.4 },
+    "nps": { "value": 46, "deltaPct": 2.0 }
+  },
+  "highlights": [
+    "Crecimiento de ingresos impulsado por línea de productos premium.",
+    "Margen bruto presionado por incremento de costos de insumos.",
+    "Mejora de NPS por optimización de tiempos de entrega."
+  ],
+  "risks": [
+    { "id": "R-01", "title": "Volatilidad de insumos", "severity": "Alta", "owner": "Compras", "mitigation": "Contratos a 6 meses + proveedores alternos." },
+    { "id": "R-02", "title": "Rotación en planta", "severity": "Media", "owner": "RRHH", "mitigation": "Bono por permanencia + plan de capacitación." }
+  ],
+  "recommendations": [
+    { "id": "A-01", "title": "Renegociar proveedores clave", "impact": "Alto", "effort": "Medio", "timeline": "30-45 días" },
+    { "id": "A-02", "title": "Campaña de retención top 20 cuentas", "impact": "Medio", "effort": "Bajo", "timeline": "2-3 semanas" }
+  ],
+  "charts": {
+    "monthlyRevenue": [
+      { "month": "2025-07", "value": 295000 },
+      { "month": "2025-08", "value": 310000 },
+      { "month": "2025-09", "value": 325000 },
+      { "month": "2025-10", "value": 340000 },
+      { "month": "2025-11", "value": 360000 },
+      { "month": "2025-12", "value": 370000 }
+    ]
+  }
+}
