@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   ViewChild,
   ChangeDetectorRef,
   NgZone
@@ -57,7 +58,7 @@ export interface CyberFeed {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   feed?: CyberFeed;
 
   executiveReport = '';
@@ -90,9 +91,17 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  /* =========================
-     HELPERS USADOS EN EL HTML
-     ========================= */
+  ngOnDestroy(): void {
+    // ✅ evita crash por timers vivos
+    if (this.loadingInterval) {
+      clearInterval(this.loadingInterval);
+      this.loadingInterval = undefined;
+    }
+    if (this.hardStopTimer) {
+      clearTimeout(this.hardStopTimer);
+      this.hardStopTimer = undefined;
+    }
+  }
 
   fmtDate(iso: string): string {
     try {
@@ -109,8 +118,6 @@ export class DashboardComponent implements OnInit {
     return s;
   }
 
-  /* ========================= */
-
   generateReport(): void {
     this.errorMsg = '';
     this.executiveReport = '';
@@ -124,7 +131,7 @@ export class DashboardComponent implements OnInit {
     this.loadingStep = 'Iniciando conexión con Gemini...';
     this.startLoadingMessages();
 
-    // kill switch
+    // ✅ kill switch (limpia anterior si existe)
     if (this.hardStopTimer) clearTimeout(this.hardStopTimer);
     this.hardStopTimer = window.setTimeout(() => {
       console.warn('[UI] Hard stop loading');
@@ -164,7 +171,7 @@ export class DashboardComponent implements OnInit {
             console.error('PDF error:', e);
             this.errorMsg = 'Reporte generado, pero falló el PDF.';
           }
-        });
+        }, 0);
       },
       error: (e) => {
         console.error('Gemini error:', e);
@@ -177,9 +184,22 @@ export class DashboardComponent implements OnInit {
     this.zone.run(() => {
       this.loading = false;
       this.loadingStep = '';
-      if (this.loadingInterval) clearInterval(this.loadingInterval);
-      if (this.hardStopTimer) clearTimeout(this.hardStopTimer);
-      this.cdr.detectChanges();
+
+      if (this.loadingInterval) {
+        clearInterval(this.loadingInterval);
+        this.loadingInterval = undefined;
+      }
+      if (this.hardStopTimer) {
+        clearTimeout(this.hardStopTimer);
+        this.hardStopTimer = undefined;
+      }
+
+      // ✅ detectChanges puede fallar si el componente ya se destruyó
+      try {
+        this.cdr.detectChanges();
+      } catch {
+        // no-op
+      }
     });
   }
 
@@ -195,10 +215,25 @@ export class DashboardComponent implements OnInit {
     let i = 0;
     this.loadingStep = steps[0];
 
+    // ✅ evita multiples intervals si le das click varias veces
+    if (this.loadingInterval) {
+      clearInterval(this.loadingInterval);
+      this.loadingInterval = undefined;
+    }
+
     this.loadingInterval = window.setInterval(() => {
       this.loadingStep = steps[i % steps.length];
       i++;
-      this.cdr.detectChanges();
+
+      // ✅ si el view ya no existe, esto puede crashear
+      try {
+        this.cdr.detectChanges();
+      } catch {
+        if (this.loadingInterval) {
+          clearInterval(this.loadingInterval);
+          this.loadingInterval = undefined;
+        }
+      }
     }, 3000);
   }
 }
