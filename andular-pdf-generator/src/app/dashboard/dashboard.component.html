@@ -1,57 +1,164 @@
-<div class="wrap" *ngIf="data as d">
+<div class="wrap" *ngIf="feed as f; else loadingState">
   <header class="top">
     <div>
-      <h1>Tablero Ejecutivo</h1>
-      <p class="sub">{{ d.company.name }} · {{ d.company.industry }} · {{ d.company.period }}</p>
+      <h1>
+        <span class="icon-shield">🛡️</span>
+        Tablero Ejecutivo · Ciberseguridad
+      </h1>
+      <p class="sub">
+        <span class="status-indicator live"></span> Live Feed
+        <span class="divider">|</span>
+        Ventana: {{ fmtDate(f.report_context.from) }} → {{ fmtDate(f.report_context.to) }}
+      </p>
     </div>
   </header>
 
   <section class="grid">
     <div class="card kpi">
-      <div class="label">Ingresos</div>
-      <div class="value">{{ fmtMoney(d.kpis.revenue.value) }}</div>
-      <div class="delta" [class.neg]="d.kpis.revenue.deltaPct<0">{{ d.kpis.revenue.deltaPct }}%</div>
+      <div class="kpi-icon total">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="label">Alertas Totales</div>
+        <div class="value">{{ f.report_context.totals.total }}</div>
+        <div class="delta">En periodo</div>
+      </div>
     </div>
 
-    <div class="card kpi">
-      <div class="label">Margen Bruto</div>
-      <div class="value">{{ d.kpis.grossMarginPct.value }}%</div>
-      <div class="delta" [class.neg]="d.kpis.grossMarginPct.deltaPct<0">{{ d.kpis.grossMarginPct.deltaPct }}%</div>
+    <div class="card kpi danger">
+      <div class="kpi-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4m0 4h.01"/></svg>
+      </div>
+      <div>
+        <div class="label">Alta Severidad</div>
+        <div class="value">{{ f.report_context.totals.by_severity.high }}</div>
+        <div class="delta neg">Requiere Acción</div>
+      </div>
     </div>
 
-    <div class="card kpi">
-      <div class="label">Utilidad Neta</div>
-      <div class="value">{{ fmtMoney(d.kpis.netProfit.value) }}</div>
-      <div class="delta" [class.neg]="d.kpis.netProfit.deltaPct<0">{{ d.kpis.netProfit.deltaPct }}%</div>
+    <div class="card kpi warn">
+      <div class="kpi-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <div class="label">Media Severidad</div>
+        <div class="value">{{ f.report_context.totals.by_severity.medium }}</div>
+        <div class="delta">Investigar</div>
+      </div>
     </div>
 
-    <div class="card kpi">
-      <div class="label">Caja</div>
-      <div class="value">{{ fmtMoney(d.kpis.cashOnHand.value) }}</div>
-      <div class="delta" [class.neg]="d.kpis.cashOnHand.deltaPct<0">{{ d.kpis.cashOnHand.deltaPct }}%</div>
-    </div>
-  </section>
-
-  <section class="two">
-    <div class="card">
-      <h2>Highlights</h2>
-      <ul>
-        <li *ngFor="let h of d.highlights">{{ h }}</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>Riesgos</h2>
-      <div class="pill" *ngFor="let r of d.risks">
-        <div class="pill-title">{{ r.title }}</div>
-        <div class="pill-meta">{{ r.severity }} · {{ r.owner }}</div>
-        <div class="pill-text">{{ r.mitigation }}</div>
+    <div class="card kpi ok">
+      <div class="kpi-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div>
+        <div class="label">Baja Severidad</div>
+        <div class="value">{{ f.report_context.totals.by_severity.low }}</div>
+        <div class="delta">Monitoreo</div>
       </div>
     </div>
   </section>
 
-  <section class="card">
-    <h2>Informe (PDF)</h2>
-    <app-pdf-generator [report]="d"></app-pdf-generator>
+  <section class="two">
+    <div class="card scrollable-card">
+      <div class="card-header">
+        <h2>Vectores de Ataque</h2>
+        <span class="badge">Top Groups</span>
+      </div>
+
+      <div class="group-section">
+        <div class="subhead">POR CATEGORÍA</div>
+        <div class="stat-row" *ngFor="let x of f.report_context.top_groups.by_category">
+          <span class="stat-name">{{ x.name }}</span>
+          <span class="stat-line"></span>
+          <span class="stat-value">{{ x.count }}</span>
+        </div>
+
+        <div class="subhead">POR DISPOSITIVO</div>
+        <div class="stat-row" *ngFor="let x of f.report_context.top_groups.by_device">
+          <span class="stat-name mono">{{ x.name }}</span>
+          <span class="stat-line"></span>
+          <span class="stat-value">{{ x.count }}</span>
+        </div>
+
+        <div class="subhead">POR USUARIO</div>
+        <div class="stat-row" *ngFor="let x of f.report_context.top_groups.by_user">
+          <span class="stat-name">{{ x.name }}</span>
+          <span class="stat-line"></span>
+          <span class="stat-value">{{ x.count }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card scrollable-card">
+      <div class="card-header">
+        <h2>Live Feed (Raw)</h2>
+        <span class="badge">{{ f.highlights.length }} eventos</span>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item" *ngFor="let h of f.highlights">
+          <div class="timeline-marker" 
+               [class.high]="h.severity==='high'"
+               [class.med]="h.severity==='medium'"
+               [class.low]="h.severity==='low'"></div>
+          
+          <div class="timeline-content">
+            <div class="pill-header">
+               <span class="sev-badge" 
+                     [class.sev-high]="h.severity==='high'"
+                     [class.sev-med]="h.severity==='medium'"
+                     [class.sev-low]="h.severity==='low'">
+                 {{ sevLabel(h.severity) }}
+               </span>
+               <span class="time">{{ fmtDate(h.occurredAt) }}</span>
+            </div>
+
+            <div class="pill-title">{{ h.name }}</div>
+            <div class="pill-text">{{ h.description }}</div>
+            
+            <div class="pill-meta-row" *ngIf="h.user || h.device">
+              <span *ngIf="h.user">👤 {{ h.user }}</span>
+              <span *ngIf="h.device">💻 {{ h.device }}</span>
+            </div>
+
+            <div class="pill-tags">
+              <span class="tag" *ngIf="h.product">{{ h.product }}</span>
+              <span class="tag mitre" *ngFor="let t of (h.mitre || [])">{{ t }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card gemini-card">
+    <div class="gemini-header">
+      <h2> Análisis con Inteligencia Artificial</h2>
+      
+      <button class="btn-glow" (click)="generateReport()" [disabled]="loading">
+        <span *ngIf="!loading">Generar con Gemini</span>
+        
+        <div class="loader-container" style="display: flex; align-items: center; gap: 10px;" *ngIf="loading">
+          <span class="spinner-small"></span>
+          <span class="step-text">{{ loadingStep }}</span>
+        </div>
+      </button>
+    </div>
+
+    <div class="error-banner" style="color: #ff7c9a; margin-top: 10px; font-size: 13px;" *ngIf="errorMsg">
+      ⚠️ {{ errorMsg }}
+    </div>
+
+    <div class="report-area" style="margin-top: 20px;" *ngIf="executiveReport">
+      <app-pdf-generator [text]="executiveReport"></app-pdf-generator>
+    </div>
   </section>
 </div>
+
+<ng-template #loadingState>
+  <div class="wrap loading-wrap" style="text-align: center; margin-top: 100px;">
+    <div class="spinner"></div>
+    <p style="color: var(--muted); margin-top: 20px;">Conectando al Centro de Operaciones de Seguridad...</p>
+  </div>
+</ng-template>

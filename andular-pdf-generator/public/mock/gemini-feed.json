@@ -1,0 +1,31 @@
+{
+  "report_context": {
+    "from": "2025-12-16T00:00:00Z",
+    "to": "2025-12-17T00:00:00Z",
+    "totals": {
+      "total": 120,
+      "by_severity": { "high": 12, "medium": 40, "low": 68 }
+    },
+    "top_groups": {
+      "by_category": [{ "name": "Malware", "count": 25 }],
+      "by_device": [{ "name": "SRV-FIN-01", "count": 10 }],
+      "by_user": [{ "name": "usuario@empresa.com", "count": 6 }]
+    }
+  },
+  "highlights": [
+    {
+      "name": "Suspicious Login",
+      "description": "Múltiples intentos fallidos seguidos de éxito desde IP nueva.",
+      "severity": "high",
+      "occurredAt": "2025-12-17T03:21:00Z",
+      "user": "jdoe",
+      "device": "LAP-123",
+      "product": "fortinet",
+      "category": "auth",
+      "type": "login",
+      "os": "windows",
+      "status": { "read": "no", "ack": "no", "eventstatus": "open" },
+      "mitre": ["T1110"]
+    }
+  ]
+}

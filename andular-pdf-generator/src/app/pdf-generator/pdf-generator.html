@@ -2,10 +2,13 @@
   <div class="header">
     <div>
       <div class="title">Informe ejecutivo</div>
-      <div class="muted">Vista previa (texto). Luego lo generamos con Gemini.</div>
+      <div class="muted">Generado con Gemini (vista previa).</div>
     </div>
-    <button class="btn" (click)="generatePDF()">Generar PDF</button>
+
+    <button class="btn" (click)="generatePDF()" [disabled]="!text">
+      Generar PDF
+    </button>
   </div>
 
-  <pre class="preview">{{ executiveText }}</pre>
+  <pre class="preview">{{ text }}</pre>
 </div>
